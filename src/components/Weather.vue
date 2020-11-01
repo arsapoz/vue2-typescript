@@ -25,6 +25,7 @@
       </v-col>
 
       <v-col cols="12" v-if="weatherCards.length">
+        <draggable  v-model="weatherCards" group="people" @start="drag=true" @end="drag=false">
         <v-card
           class="mx-auto mb-10"
           max-width="400"
@@ -36,23 +37,13 @@
               <v-list-item-title class="headline">
                 {{ card.name }}
               </v-list-item-title>
-              <v-list-item-subtitle
-                >Mon, 12:30 PM, Mostly sunny</v-list-item-subtitle
-              >
             </v-list-item-content>
           </v-list-item>
 
           <v-card-text>
             <v-row align="center">
-              <v-col class="display-3" cols="6">
-                23&deg;C
-              </v-col>
-              <v-col cols="6">
-                <v-img
-                  src="https://cdn.vuetifyjs.com/images/cards/sun.png"
-                  alt="Sunny image"
-                  width="92"
-                ></v-img>
+              <v-col class="display-3" cols="12">
+                {{ card.main.temp }}
               </v-col>
             </v-row>
           </v-card-text>
@@ -61,14 +52,9 @@
             <v-list-item-icon>
               <v-icon>mdi-send</v-icon>
             </v-list-item-icon>
-            <v-list-item-subtitle>23 km/h</v-list-item-subtitle>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-icon>
-              <v-icon>mdi-cloud-download</v-icon>
-            </v-list-item-icon>
-            <v-list-item-subtitle>48%</v-list-item-subtitle>
+            <v-list-item-subtitle
+              >{{ card.wind.speed }} km/h</v-list-item-subtitle
+            >
           </v-list-item>
 
           <!-- <v-slider
@@ -104,6 +90,7 @@
             </v-btn>
           </v-card-actions>
         </v-card>
+        </draggable>
       </v-col>
     </v-row>
   </v-container>
@@ -112,12 +99,17 @@
 <script lang="ts">
 import Vue from "vue";
 import axios from "axios";
+import draggable from 'vuedraggable'
 
 export default Vue.extend({
   name: "Weather",
+  components: {
+    draggable,
+  },
   data: () => ({
     weatherCards: [],
     loading: false,
+    drag: false,
     items: [],
     search: null,
     select: null,
@@ -134,7 +126,7 @@ export default Vue.extend({
   },
   methods: {
     removeCard(cardId) {
-      const i = this.weatherCards.map((card => card.id)).indexOf(cardId);
+      const i = this.weatherCards.map(card => card.id).indexOf(cardId);
       this.weatherCards.splice(i, 1);
     },
     getCities() {
